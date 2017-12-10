@@ -1,0 +1,256 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: jbcn-cfp-api
+  description: JBCNConf call for papers platform API
+  termsOfService: terms
+  contact:
+    name: José Guitart Ruíz
+    email: jose@barcelonajug.org
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+basePath: "/"
+tags:
+ - name: "auth"
+   description: "Authentication operations"
+ - name: "User"
+   description: "User operations"
+ - name: "Paper"
+   description: "Paper operations"
+
+schemes:
+- "http"
+paths:
+  /login:
+    post:
+      tags:
+      - "auth"
+      summary: "Login operation"
+      description: "Login operation. It returns a JWT token in base64"
+      operationId: "login"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Operation's payload"
+        required: true
+        schema:
+          $ref: '#/definitions/LoginRequest'
+      responses:
+        200:
+          description: "operation success"
+          schema:
+            $ref: '#/definitions/LoginResponse'
+  /logout:
+    get:
+      tags:
+      - "auth"
+      summary: "Logout operation"
+      operationId: "logout"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "operation success"
+          schema:
+            $ref: '#/definitions/simpleRequest'
+
+
+  /user:
+    post:
+      summary: "User create"
+      description: "User create"
+      operationId: "user_create"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Operation's payload"
+        required: true
+        schema:
+          $ref: '#/definitions/user'
+      responses:
+        200:
+          description: "operation success"
+          schema:
+            $ref: '#/definitions/simpleRequest'
+
+  /user/{userId}:
+    get:
+      tags:
+        - "user"
+      summary: "User detail"
+      description: "User detail"
+      operationId: "user_get"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "ID of user to return"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "operation usccess"
+          schema:
+            $ref: '#/definitions/userGetResponse'
+    delete:
+      summary: "User delete"
+      description: "User delete"
+      operationId: "user_delete"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "ID of user to return"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: '#/definitions/simpleRequest'
+
+    put:
+      summary: "User update"
+      description: "User update"
+      operationId: "user_update"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Operation's payload"
+        required: true
+        schema:
+          $ref: '#/definitions/user'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/simpleRequest'
+
+  /user/search:
+    post:
+      tags:
+      - "user"
+      summary: "User search"
+      operationId: "user_search"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Operation's payload"
+        required: true
+        schema:
+          $ref: '#/definitions/searchRequest'
+      responses:
+        200:
+          description: "operation success"
+          schema:
+            $ref: '#/definitions/userSearchResponse'
+
+definitions:
+  user:
+    type: object
+    properties:
+      _id:
+        type: string
+      username:
+        type: string
+  simpleRequest:
+    type: object
+    properties:
+      status:
+        type: "boolean"
+      error:
+        type: "array"
+        items:
+          type: "string"
+
+  searchRequest:
+    type: "object"
+    properties:
+      term:
+        type: "string"
+      size:
+        type: "integer"
+      page:
+        type: "integer"
+      sort:
+        type: "string"
+      asc:
+        type: "boolean"
+
+  LoginRequest:
+    type: "object"
+    properties:
+      username:
+        type: "string"
+      password:
+        type: "string"
+
+  LoginResponse:
+    type: "object"
+    properties:
+      status:
+        type: "boolean"
+      error:
+        type: "array"
+        items:
+          type: "string"
+      data:
+        type: "object"
+        properties:
+          token:
+            type: "string"
+
+  userGetResponse:
+    type: "object"
+    properties:
+      status:
+        type: "boolean"
+      error:
+        type: "array"
+        items:
+          type: "string"
+      data:
+        type: "object"
+        properties:
+          instance:
+            $ref: '#/definitions/user'
+
+  userSearchResponse:
+    type: "object"
+    properties:
+      status:
+        type: "boolean"
+      error:
+        type: "array"
+        items:
+          type: "string"
+      data:
+        type: "object"
+        properties:
+          page:
+            type: integer
+          size:
+            type: integer
+          total:
+            type: integer
+          totalPages:
+            type: integer
+          items:
+            type: array
+            items:
+              $ref: '#/definitions/user'

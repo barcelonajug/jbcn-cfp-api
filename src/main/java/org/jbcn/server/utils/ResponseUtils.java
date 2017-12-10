@@ -49,4 +49,11 @@ public class ResponseUtils {
 
     }
 
+    public static void searchResult(RoutingContext context, AsyncResult<Message<Object>> reply) {
+        JsonObject body = new JsonObject();
+        JsonObject data = (JsonObject) reply.result().body();
+        body.put("status", true);
+        body.put("data", data);
+        sendBody(context, body);
+    }
 }

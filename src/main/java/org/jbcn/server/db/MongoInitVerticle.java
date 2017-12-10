@@ -28,8 +28,7 @@ public class MongoInitVerticle extends AbstractVerticle {
         JsonObject config = new JsonObject();
         config.put("db_name","jbcn");
         config.put("connection_string", "mongodb://localhost:27017");
-        mongoClient = MongoClient.createShared(vertx, config);
-        userDaoHandler = new UserHandler(mongoClient);
+        mongoClient = MongoClient.createNonShared(vertx, config);
         authHandler = new AuthHandler(vertx, mongoClient);
         paperDaoHandler = new PaperHandler(mongoClient);
 
@@ -40,7 +39,6 @@ public class MongoInitVerticle extends AbstractVerticle {
     public void start(Future<Void> startFuture) throws Exception {
 
         this.prepareDatabase();
-        vertx.eventBus().consumer(Constants.USER_QUEUE, this.userDaoHandler::onMessage);
         vertx.eventBus().consumer(Constants.PAPER_QUEUE, this.paperDaoHandler::onMessage);
         vertx.eventBus().consumer(Constants.AUTH_QUEUE, this.authHandler::onMessage);
     }

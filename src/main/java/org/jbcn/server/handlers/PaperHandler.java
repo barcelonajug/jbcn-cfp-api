@@ -43,6 +43,9 @@ public class PaperHandler {
             case "paper-get":
                 getPaper(message);
                 break;
+            case "paper-search":
+                searchPaper(message);
+                break;
             case "paper-add":
                 addPaper(message);
                 break;
@@ -70,6 +73,10 @@ public class PaperHandler {
             }
 
         });
+    }
+
+    private void searchPaper(Message<JsonObject> message) {
+
     }
 
     private void getPaper(Message<JsonObject> message) {

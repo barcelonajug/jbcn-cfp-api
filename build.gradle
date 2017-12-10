@@ -27,6 +27,8 @@ dependencies {
     compile "io.vertx:vertx-web:$vertxVersion"
     compile "io.vertx:vertx-mongo-client:$vertxVersion"
 
+    compile 'org.mongodb:mongodb-driver-async:3.5.0'
+
     compile "io.vertx:vertx-service-proxy:$vertxVersion"
     compileOnly "io.vertx:vertx-codegen:$vertxVersion"
 
@@ -37,36 +39,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-/*
-sourceSets {
-    generated{
-        java.srcDir "${projectDir}/src/generated/java"
-    }
-}
-
-task generateProxies(type: JavaCompile, group: 'build',
-        description: 'Generates the Vertx proxies') {
-    source = sourceSets.main.java // input source set
-    classpath = configurations.compile //+ configurations.vertx // add processor module to classpath
-    // specify javac arguments
-    options.compilerArgs = [
-            "-proc:only",
-            "-processor", "io.vertx.codegen.CodeGenProcessor", // vertx processor here
-            "-AoutputDirectory=${projectDir}/src/main"
-    ]
-    // specify output of generated code
-    destinationDir = file("${projectDir}/src/generated/java")
-}
-
-compileJava {
-    dependsOn(generateProxies)
-    source    += sourceSets.generated.java
-    // specify javac arguments
-    options.compilerArgs = [
-            "-Acodetrans.output=${projectDir}/src/main"
-    ]
-}
-*/
 
 shadowJar {
     classifier = 'fat'

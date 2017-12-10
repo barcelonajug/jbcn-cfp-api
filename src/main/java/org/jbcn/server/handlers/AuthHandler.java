@@ -59,7 +59,10 @@ public class AuthHandler {
         String password = message.body().getString("password");
         JsonObject authInfo = new JsonObject();
         authInfo.put("username", username);
-        authInfo.put("password", password);
+
+        String encodedPassword = password; //this.authProvider.getHashStrategy().computeHash(password, null);
+
+        authInfo.put("password", encodedPassword);
 
         authProvider.authenticate(authInfo, res -> {
             if(res.succeeded()) {

@@ -16,6 +16,7 @@ public class MainVerticle extends AbstractVerticle {
         Future<String> httpVerticleDeployment = Future.future();
         vertx.deployVerticle("org.jbcn.server.http.HttpServerVerticle", httpVerticleDeployment.completer());
         vertx.deployVerticle("org.jbcn.server.db.MongoInitVerticle", httpVerticleDeployment.completer());
+        vertx.deployVerticle("org.jbcn.server.handlers.UserHandler", httpVerticleDeployment.completer());
         httpVerticleDeployment.setHandler(ar -> {
             if (ar.succeeded()) {
                 startFuture.complete();

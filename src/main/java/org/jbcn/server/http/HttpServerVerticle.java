@@ -40,6 +40,8 @@ public class HttpServerVerticle extends AbstractVerticle {
         router.route().handler(CorsHandler.create("http://localhost:4200")
                 .allowedMethod(io.vertx.core.http.HttpMethod.GET)
                 .allowedMethod(io.vertx.core.http.HttpMethod.POST)
+                .allowedMethod(io.vertx.core.http.HttpMethod.PUT)
+                .allowedMethod(io.vertx.core.http.HttpMethod.DELETE)
                 .allowedMethod(io.vertx.core.http.HttpMethod.OPTIONS)
                 .allowCredentials(true)
                 .allowedHeader("Authorization")
@@ -59,24 +61,27 @@ public class HttpServerVerticle extends AbstractVerticle {
         //User routes
         router.get("/api/user").handler(this.userController::getUsers);
         router.route("/api/user/*").handler(BodyHandler.create());
+        router.post("/api/user/search").handler(this.userController::searchUser);
         router.get("/api/user/:id").handler(this.userController::getUser);
-        router.put("/api/user").handler(this.userController::updateUser);
+        router.put("/api/user/:id").handler(this.userController::updateUser);
         router.post("/api/user").handler(this.userController::addUser);
         router.delete("/api/user/:id").handler(this.userController::deleteUser);
 
         //Paper routes
-        router.get("/paper").handler(this.paperController::getPapers);
-        router.route("/paper/*").handler(BodyHandler.create());
-        router.get("/paper/:id").handler(this.paperController::getPaper);
-        router.put("/paper").handler(this.paperController::updatePaper);
-        router.post("/paper").handler(this.paperController::addPaper);
-        router.post("/paper/:id").handler(this.paperController::deletePaper);
+        router.get("/api/paper").handler(this.paperController::getPapers);
+        router.route("/api/paper/*").handler(BodyHandler.create());
+        router.get("/api/paper/:id").handler(this.paperController::getPaper);
+        router.put("/api/paper").handler(this.paperController::updatePaper);
+        router.post("/api/paper").handler(this.paperController::addPaper);
+        router.post("/api/paper/:id").handler(this.paperController::deletePaper);
 
         //Auth routes
         router.route("/login/*").handler(BodyHandler.create());
         router.post("/login").handler(this.authController::login);
         router.route("/logout/*").handler(BodyHandler.create());
         router.get("/logout").handler(this.authController::logout);
+
+
 
         server.requestHandler(router::accept).listen(8080, ar -> {
             if (ar.succeeded()) {

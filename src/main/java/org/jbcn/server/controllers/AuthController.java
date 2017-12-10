@@ -38,9 +38,14 @@ public class AuthController {
                 .put("username", username)
                 .put("password", password);
         vertx.eventBus().send(Constants.AUTH_QUEUE, params, options, reply -> {
-            JsonObject body = (JsonObject) reply.result().body();
-            String token = body.getString("token");
-            ResponseUtils.loginResult(context, token);
+            if(reply.succeeded()) {
+                JsonObject body = (JsonObject) reply.result().body();
+                String token = body.getString("token");
+                _log.info("Login token:"+token);
+                ResponseUtils.loginResult(context, token);
+            } else {
+                ResponseUtils.errorResult(context, reply.cause().getMessage());
+            }
         });
     }
 

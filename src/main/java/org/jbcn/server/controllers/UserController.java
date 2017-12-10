@@ -1,7 +1,9 @@
 package org.jbcn.server.controllers;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -21,6 +23,7 @@ public class UserController {
     }
 
     public void getUser(RoutingContext context) {
+        _log.info("controller - get-user ");
         HttpServerResponse response = context.response();
         response.putHeader("content-type","application/json");
         DeliveryOptions options = new DeliveryOptions().addHeader("action", "user-get");
@@ -38,9 +41,7 @@ public class UserController {
                 JsonObject body = new JsonObject();
                 if(reply.succeeded()) {
                     JsonObject user = (JsonObject) reply.result().body();
-                    JsonObject data = new JsonObject();
-                    data.put("instance", user);
-                    body.put("data", data);
+                    body.put("data", user);
                     _log.debug("body:"+body.toString());
                     body.put("status", true);
                 } else {
@@ -56,15 +57,30 @@ public class UserController {
     }
 
     public void getUsers(final RoutingContext context) {
+        _log.info("controller - get-users ");
         DeliveryOptions options = new DeliveryOptions().addHeader("action", "user-list");
         vertx.eventBus().send(Constants.USER_QUEUE, new JsonObject(), options, reply -> {
             ResponseUtils.listResult(context, reply);
         });
+    }
 
+    public void searchUser(final RoutingContext context) {
+        _log.info("controller - search-user ");
+        DeliveryOptions options = new DeliveryOptions()
+                .addHeader("action", "user-search");
+
+        JsonObject params = context.getBodyAsJson();
+        vertx.eventBus().send(Constants.USER_QUEUE, params, options, reply -> {
+            if(reply.succeeded()) {
+                ResponseUtils.searchResult(context, reply);
+            } else {
+                _log.error("Error in search user",reply.cause());
+                ResponseUtils.errorResult(context, reply.cause().getMessage());
+            }
+        });
     }
 
     public void updateUser(final RoutingContext context) {
-
         JsonObject userJson = new JsonObject(context.getBodyAsString());
         DeliveryOptions options = new DeliveryOptions().addHeader("action", "user-update");
         String id = context.request().getParam("id");
@@ -82,7 +98,7 @@ public class UserController {
 
     public void saveUser(RoutingContext context, JsonObject userJson, DeliveryOptions options) {
         vertx.eventBus().send(Constants.USER_QUEUE, userJson, options, reply -> {
-            ResponseUtils.simpleResult(context);
+            handleSimpleResponse(context, reply);
         });
     }
 
@@ -95,11 +111,19 @@ public class UserController {
             JsonObject params = new JsonObject();
             params.put("id",id);
             vertx.eventBus().send(Constants.USER_QUEUE, params, options, reply -> {
-                ResponseUtils.simpleResult(context);
+                handleSimpleResponse(context, reply);
             });
         }
     }
 
+
+    private void handleSimpleResponse(RoutingContext context, AsyncResult<Message<Object>> reply) {
+        if(reply.succeeded()) {
+            ResponseUtils.simpleResult(context);
+        } else {
+            ResponseUtils.errorResult(context, reply.cause().getMessage());
+        }
+    }
 
 
 }
